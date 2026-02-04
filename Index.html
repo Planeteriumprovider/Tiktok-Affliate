@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNLIMITED COINS - EXCLUSIVE DEAL</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        :root {
+            --primary: #ff0050; /* TikTok Pink */
+            --secondary: #00f2ea; /* TikTok Cyan */
+            --bg: #010101;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: white;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+        }
+
+        /* Hintergrund Partikel */
+        #canvas-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 3rem;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            transform: scale(0); /* Start für Animation */
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, var(--primary), #fff, var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            filter: drop-shadow(0 0 10px var(--primary));
+        }
+
+        .discount-badge {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            font-weight: bold;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            margin: 1rem 0;
+            animation: pulse 1.5s infinite;
+        }
+
+        .perks {
+            font-size: 1.2rem;
+            color: #ccc;
+            margin: 2rem 0;
+        }
+
+        .highlight {
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            padding: 20px 40px;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: white;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 0, 80, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 0 40px rgba(0, 242, 234, 0.6);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 rgba(255, 0, 80, 0); }
+            50% { transform: scale(1.1); box-shadow: 0 0 20px rgba(255, 0, 80, 0.6); }
+            100% { transform: scale(1); box-shadow: 0 0 0 rgba(255, 0, 80, 0); }
+        }
+
+        .footer-note {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="canvas-bg"></canvas>
+
+<div class="container" id="main-card">
+    <h1>COIN DROP</h1>
+    <div class="discount-badge">SAVE 25% + 5% CASHBACK</div>
+    
+    <div class="perks">
+        ✨ <span class="highlight">EXTREME:</span> Schalte 2 geheime Animationen frei!<br>
+        Nur über diesen offiziellen Partner-Link.
+    </div>
+
+    <a href="https://www.tiktok.com/coin?rc=YSB7NNVS&rie=" class="btn" id="coin-button">
+        JETZT SPAREN
+    </a>
+
+    <div class="footer-note">Limitierter VIP-Zugang</div>
+</div>
+
+<script>
+    // Audio Context Setup (Browser blockieren Autoplay oft, daher Trigger bei Interaktion)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(freq, type, duration) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    // Intro Animation
+    window.onload = () => {
+        gsap.to("#main-card", {
+            scale: 1,
+            duration: 1,
+            ease: "elastic.out(1, 0.5)",
+            onComplete: () => {
+                // Intro Sound
+                playSound(200, 'sawtooth', 0.5);
+                playSound(100, 'sine', 0.8);
+            }
+        });
+    };
+
+    // Button Click Sound & Effekt
+    const btn = document.getElementById('coin-button');
+    btn.addEventListener('mousedown', () => {
+        playSound(800, 'square', 0.1);
+        playSound(1200, 'sine', 0.2);
+    });
+
+    // Partikel-System
+    const canvas = document.getElementById('canvas-bg');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particles = [];
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 3 + 1;
+            this.speedX = Math.random() * 3 - 1.5;
+            this.speedY = Math.random() * 3 - 1.5;
+            this.color = Math.random() > 0.5 ? '#ff0050' : '#00f2ea';
+        }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            if (this.x > canvas.width) this.x = 0;
+            if (this.x < 0) this.x = canvas.width;
+            if (this.y > canvas.height) this.y = 0;
+            if (this.y < 0) this.y = canvas.height;
+        }
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function init() {
+        for (let i = 0; i < 100; i++) {
+            particles.push(new Particle());
+        }
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+            p.update();
+            p.draw();
+        });
+        requestAnimationFrame(animate);
+    }
+
+    init();
+    animate();
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+</script>
+
+</body>
+</html>
